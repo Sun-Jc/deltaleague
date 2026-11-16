@@ -640,7 +640,12 @@ $PYTHON verify_gain.py --model FP32TOP --edit CANDIDATE.pt --jobs E2E.jsonl --ru
 
 ## Submission
 
-TODO: submission URL/ID (added after `delta submit … --pr THIS_PR_URL`).
+[Delta League submission](https://deltaleague.ai/submissions/34bf31fc-bda8-466d-a6e5-ddd13a967fb8/),
+ID `34bf31fc-bda8-466d-a6e5-ddd13a967fb8`, submitted on 2026-11-16 at 07:04 UTC with the URL of
+this PR (#83). Official evaluation pending.
+
+The platform cut the submission title at 160 characters. Its last words were meant to read
+"local IFEval +1.5 +/- 3.0, not established".
 
 ## Boundaries
 
