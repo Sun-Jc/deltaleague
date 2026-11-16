@@ -1,8 +1,8 @@
 # Sampling gain on the leader: what responds, what does not, and a last-layer edit that sets it per task type (CPU only)
 
-Status: research record for one submission (see Submission). Everything said here about the
-candidate is a local estimate; its official evaluation was pending when this record was
-opened.
+Status: submitted and evaluated. The entry scored 53.5 on the test (standard error 1.6)
+against 54.3 for its parent, which is no measurable difference (see Submission). Everything
+else said here about the candidate is a local estimate.
 
 ## Hypothesis and scope
 
@@ -395,6 +395,13 @@ are active while the model thinks. At the thinking states of the reasoning promp
 rollback moves coordinate 0 by +0.15 on average (from −2.80) and lowers the norm of the final
 residual by 0.23%. Answer states do not move (−0.004).
 
+Measured with the tools of section 6 (`neurons_as_edit.py` expresses the two neurons as an
+edit of `fb984a19`), the rollback leaves answer states unchanged and changes thinking
+states: the sampling distributions differ by 1.2–2.4% per token, the gain on reasoning
+prompts is 1.003–1.005, and at the 52 thinking states where `fb984a19` gives `</think>` a
+probability above 0.02 (30 ARC and CommonsenseQA completions) `eff1e1b7` gives it
+0.71 ± 0.46 times as much.
+
 **The values fitted on `fb984a19` do not carry over exactly.** Applied unchanged to
 `eff1e1b7` (`development_edit.json` builds on either parent), they leave reasoning prompts
 with a small gain while the model thinks: 1.002 on MATH, 1.006 on GSM8K, 1.007 on MMLU,
@@ -433,11 +440,15 @@ forward pass (`verify_gain.py`, the same 36 completions as in section 6):
   1.000 ± 0.020 on MMLU, and a median of 1.199 on IFEval.
 - End-to-end sampling (`make_e2e_jobs.py`: 64 reasoning prompts that no run or fit had
   used and 32 of the fresh IFEval prompts of section 7; `eff1e1b7` and the edited model, one
-  sample per prompt, same seed). When this record was opened, 85 of the 96 prompts had
-  finished in both arms, the rest being long completions: parent 71.8, edited 70.6, a
-  difference of −1.2 ± 4.6 (7 gained, 8 lost), with 6 against 7 capped completions. On the
-  54 reasoning prompts among them, 4 were gained and 4 lost. This check can only exclude a
-  large loss, and it does.
+  sample per prompt, same seed): parent 65.6, edited 63.5, a difference of −2.1 ± 4.2
+  (7 gained, 9 lost), with 13 against 15 capped completions. The 64 reasoning prompts give
+  39 correct against 38 (4 gained, 5 lost), the 32 IFEval prompts 24 against 23 (3 gained,
+  4 lost). This check can only exclude a large loss, and it does. The record was opened
+  when 85 of the 96 prompts had finished in both arms (−1.2 ± 4.6 at that point).
+- The edit does not drift on its own output. Along the 81 finished completions that the
+  edited model sampled in that check (`verify_gain.py`), reasoning states keep gain
+  1.000 ± 0.020 while thinking (0.7% of states above 1.1) and 0.999 ± 0.017 in the answer;
+  IFEval states are switched in 72% of thinking and 83% of answer states.
 
 ### Scorer observations (not used to gain score)
 
@@ -588,6 +599,11 @@ $PYTHON edit_eval.py collect --model FP32TOP --edit CANDIDATE.pt --jobs JOBS.jso
 $PYTHON close_stop.py RUN/top-eval RUN/top-eval2
 $PYTHON verify_bf16.py TOP/model edited.safetensors JOBS.jsonl RUN/leader --per-family 2 --tokens 2000
 $PYTHON verify_gain.py --model FP32TOP --edit DEV.pt --jobs JOBS.jsonl --run RUN/leader --per-family 6  # earlier values, unchanged
+$PYTHON neurons_as_edit.py FP32TOP/model.safetensors 1998,3529 ROLLBACK.pt   # eff1e1b7 as an edit of fb984a19
+$PYTHON verify_gain.py --model FP32 --edit ROLLBACK.pt --jobs JOBS.jsonl --run RUN/leader --per-family 6
+$PYTHON edit_eval.py collect --model FP32 --edit ROLLBACK.pt --jobs JOBS.jsonl --run RUN/leader \
+        --out RUN/rollback-eval --only ok --max-rows 60 --shard 0/2
+$PYTHON close_stop.py RUN/rollback-eval --changed none
 $PYTHON make_e2e_jobs.py DATA/pool.jsonl JOBS.jsonl E2E.jsonl                 # 96 prompts outside the job file
 ./launch.sh FP32TOP E2E.jsonl RUN/e2e-parent 4 --samples 1 --seed 1000 --batch 16 --kv-gb 0.8
 ./launch.sh FP32TOP E2E.jsonl RUN/e2e-edited 4 --samples 1 --seed 1000 --batch 16 --kv-gb 0.8 --edit CANDIDATE.pt
@@ -642,7 +658,26 @@ $PYTHON verify_gain.py --model FP32TOP --edit CANDIDATE.pt --jobs E2E.jsonl --ru
 
 [Delta League submission](https://deltaleague.ai/submissions/34bf31fc-bda8-466d-a6e5-ddd13a967fb8/),
 ID `34bf31fc-bda8-466d-a6e5-ddd13a967fb8`, submitted on 2026-11-16 at 07:04 UTC with the URL of
-this PR (#83). Official evaluation pending.
+this PR (#83).
+
+**Official result** (2026-11-16 07:30 UTC, version `bde3d8e4-77a8-4605-bbd7-b96f7a2db4ac`):
+test score **53.5** with standard error 1.58, rank 3 of 77 on that day. Truncation rate
+15.0%, public validation 46.5.
+
+| | This entry | Parent `eff1e1b7` |
+|---|---|---|
+| Test score | 53.5 | 54.3 |
+| Passes in the two 500-item halves | 275 + 260 | 285 + 258 |
+| Truncation rate | 15.0% | 14.2% |
+| Public validation, 18 benchmarks | 46.5 | 47.1 |
+| Public validation, IFEval (64 items) | 46 | 50 |
+
+- The entry is 0.8 points below its parent's one evaluation, half the standard error of a
+  single evaluation. It is neutral as far as one evaluation can tell, which is what the
+  record predicted, and it is not an improvement.
+- The four entries built on `eff1e1b7` now score 54.3, 53.5, 53.1 and 52.3.
+- Public IFEval gives no sign of a gain from the sharper sampler either: 46 of 64 against
+  50 for the parent, inside the range of 44 to 52 that the entries of this family span.
 
 The platform cut the submission title at 160 characters. Its last words were meant to read
 "local IFEval +1.5 +/- 3.0, not established".
