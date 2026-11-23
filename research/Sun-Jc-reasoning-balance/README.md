@@ -25,3 +25,5 @@ export DELTA_DATASET_SOURCES="$(cat "$DELTA_EVAL_ROOT/dataset-sources.json")"
 ```
 
 An additional target panel freezes 24 MATH500 questions and two questions in each of the 27 BBH tasks outside the official public manifest. The panel is opened only if the selected candidate qualifies for full replication or both targets strictly improve in the disjoint replication. The feature weights and selection rule stay fixed. Run `fresh_panel.py "$out" prepare` before reading joint development outcomes and `fresh_panel.py "$out" audit` after replication, using the same evaluator environment.
+
+The leaderboard check on November 23, 2026 found the same leader, with public validation 47.33 and private test 54.70. Local main was fast-forwarded to the organizer's 9e3435b. The existing evaluation environment remains pinned at b9db793 for comparison with the recorded baseline. The native text, coding, tools and suite modules used here have identical source at both revisions.
