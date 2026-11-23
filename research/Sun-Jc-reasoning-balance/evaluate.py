@@ -4,7 +4,6 @@ from contextlib import contextmanager
 from datetime import datetime, timezone
 import hashlib
 import json
-import math
 from pathlib import Path
 import subprocess
 import sys
@@ -160,13 +159,13 @@ def full_report(dest,suite,parent,child,arm):
     return report
 
 
-def evaluate(root):
+def evaluate(root, arms=ARMS):
     check_versions()
     source=root.parent/'leader-round2-v1/general'
     suite=read(source/'suite.json')
     assert suite['sha256']==SUITE_HASH
     summaries={}
-    for arm in ARMS:
+    for arm in arms:
         dest=root/arm/'development'
         dest.mkdir(parents=True,exist_ok=True)
         if not (root/arm/'validation.log').is_file():
@@ -191,9 +190,9 @@ def evaluate(root):
         row=summaries[arm]
         gains=[(r['candidate_correct']-r['parent_correct'])/r['items'] for r in row['focus'].values()]
         tier=2 if min(gains)>0 and row['delta']>0 else int(min(gains)>=0 and row['delta']>0)
-        return tier,row['delta'],min(gains),-ARMS.index(arm)
+        return tier,row['delta'],min(gains),-arms.index(arm)
 
-    arm=max(ARMS,key=priority)
+    arm=max(arms,key=priority)
     tier=priority(arm)[0]
     new_suite=read(root.parent/'ten-hour-confirmation-v1/suite.json')
     development_ids=expected_ids(suite)
@@ -221,4 +220,6 @@ def evaluate(root):
 if __name__=='__main__':
     parser=argparse.ArgumentParser()
     parser.add_argument('root',type=Path)
-    evaluate(parser.parse_args().root)
+    parser.add_argument('--study', choices=('edits', 'step-pairs'), default='edits')
+    args=parser.parse_args()
+    evaluate(args.root, ARMS if args.study=='edits' else ('step-pairs',))
