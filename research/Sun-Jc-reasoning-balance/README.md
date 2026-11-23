@@ -22,6 +22,12 @@ The repeated sign change for stronger attention on BBH (two fewer correct on dev
 
 The combined results, paired intervals, native-report checks and parent repeatability are in [the evaluation summary](results/summary.json). Individual benchmark results are in the adjacent development reports. Raw reports and the reconstructed models are on T9 in `delta-experiments/reasoning-balance-v1` and `delta-experiments/reasoning-steps-v1`.
 
+## Exploratory official evaluation
+
+Sun-Jc selected one official evaluation of the stronger-attention patch after completing the local comparison. The disjoint BBH result supplied a positive signal, with eight wins and three losses, and all eight MATH500 answers retained their original scores. The negative 18-benchmark development result and the change in direction on BBH make this an exploratory submission. The original decision to retain the parent as the working baseline still applies.
+
+The parent version is `917d6b4f-fea3-432c-9264-e4f89e45890a`. The selected sparse patch has SHA-256 `75ab09205836a490b84546eefbe97a1fc220a6340ce1106b39fdd5bc737ba9ce` and occupies 8,090 bytes. Official submission and evaluation are pending.
+
 ## Reproduction
 
 Use the T9 Python, MLX and evaluation environments from the Mac evaluation guide. The laboratory batch server, baseline verifier and analysis come from the GRPO calibration branch at commit 450bf5a. Retain the previous verified leader run, the disjoint suite and the pinned native data on T9. Run from this research folder with a new directory under delta-experiments.
