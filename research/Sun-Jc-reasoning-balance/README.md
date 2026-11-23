@@ -4,6 +4,24 @@ Compare middle-to-late attention concentration and a third GRPO seed blend again
 
 The selection and replication rules are in `protocol.json`. Every candidate receives the same 18 native local benchmark groups. The scorer measures MATH500 with math verification and BBH with its native filtered exact match. A development group has eight mathematics questions or one question per each of 27 BBH tasks. A complete score averages the 18 benchmark scores equally. The previous leader run is reused only after reconstructing its scores from native reports and checking all model, suite and runtime identities.
 
+## Results on November 23, 2026
+
+Keep 917d6b4f as the working baseline. All four candidates scored below it on the local 204-item, 18-benchmark development subset. Each benchmark has equal weight. MATH500 and BBH entries are numbers of correct answers. The interval is a paired 90% bootstrap interval for the difference in macro score under this one generation seed.
+
+| Checkpoint or edit | Macro | Change | 90% interval | MATH500 / 8 | BBH / 27 |
+| --- | ---: | ---: | --- | ---: | ---: |
+| Official leader 917d6b4f | 48.51 | — | — | 5 | 11 |
+| Stronger attention, ×1.08 | 45.25 | −3.26 | [−7.94, +1.51] | 3 | 9 |
+| Softer attention, ×0.92 | 43.92 | −4.59 | [−8.71, −0.44] | 5 | 12 |
+| Third GRPO seed blend | 44.71 | −3.80 | [−8.23, +0.57] | 3 | 12 |
+| Paired reasoning-step LoRA | 46.11 | −2.40 | [−6.43, +1.69] | 4 | 9 |
+
+On the 35 disjoint reasoning items, the parent scored 5/8 on MATH500 and 7/27 on BBH. Stronger attention matched the parent's mathematics answers and scored 12/27 on BBH (eight wins, three losses). The reasoning-step adapter matched the mathematics answers and scored 5/27 on BBH (four wins, six losses). The parent's two fresh runs returned identical responses on every item. Neither experiment qualified for the larger target panel or full 18-benchmark replication under its preregistered rules.
+
+The repeated sign change for stronger attention on BBH (two fewer correct on development, five more on replication) limits the case for that edit. In the separate reasoning-step experiment, MBPP improved by two questions and MMLU-Pro improved by two, while HumanEval lost three of four, illustrating the influence of small equally weighted groups. Local results describe the sampled benchmarks. The official private score of the baseline was 54.70, and the leaderboard's top four versions and scores were unchanged at 15:46 Singapore time.
+
+The combined results, paired intervals, native-report checks and parent repeatability are in [the evaluation summary](results/summary.json). Individual benchmark results are in the adjacent development reports. Raw reports and the reconstructed models are on T9 in `delta-experiments/reasoning-balance-v1` and `delta-experiments/reasoning-steps-v1`.
+
 ## Reproduction
 
 Use the T9 Python, MLX and evaluation environments from the Mac evaluation guide. The laboratory batch server, baseline verifier and analysis come from the GRPO calibration branch at commit 450bf5a. Retain the previous verified leader run, the disjoint suite and the pinned native data on T9. Run from this research folder with a new directory under delta-experiments.

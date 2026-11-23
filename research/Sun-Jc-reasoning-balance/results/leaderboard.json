@@ -62,5 +62,7 @@
         "completed_at": "2026-11-19T18:16:06.397181Z"
       }
     }
-  ]
+  ],
+  "rechecked_utc": "2026-11-23T07:46:49.420870+00:00",
+  "top_four_versions_and_scores_unchanged": true
 }
