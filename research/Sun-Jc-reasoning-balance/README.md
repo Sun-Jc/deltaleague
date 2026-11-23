@@ -26,7 +26,7 @@ The combined results, paired intervals, native-report checks and parent repeatab
 
 Sun-Jc selected one official evaluation of the stronger-attention patch after completing the local comparison. The disjoint BBH result supplied a positive signal, with eight wins and three losses, and all eight MATH500 answers retained their original scores. The negative 18-benchmark development result and the change in direction on BBH make this an exploratory submission. The original decision to retain the parent as the working baseline still applies.
 
-The parent version is `917d6b4f-fea3-432c-9264-e4f89e45890a`. The selected sparse patch has SHA-256 `75ab09205836a490b84546eefbe97a1fc220a6340ce1106b39fdd5bc737ba9ce` and occupies 8,090 bytes. Official submission and evaluation are pending.
+The parent version is `917d6b4f-fea3-432c-9264-e4f89e45890a`. The selected sparse patch has SHA-256 `75ab09205836a490b84546eefbe97a1fc220a6340ce1106b39fdd5bc737ba9ce` and occupies 8,090 bytes. Delta League received [submission 8cd9373f](https://deltaleague.ai/submissions/8cd9373f-c20d-439f-889e-d9d7de84d716/) at 09:07 UTC on November 23, 2026, linked to [research PR 105](https://github.com/ilblackdragon/deltaleague/pull/105). Official scores are pending.
 
 ## Reproduction
 
