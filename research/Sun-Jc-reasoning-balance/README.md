@@ -23,3 +23,5 @@ source "$root/public-eval/env.sh"
 export DELTA_DATASET_SOURCES="$(cat "$DELTA_EVAL_ROOT/dataset-sources.json")"
 "$DELTA_EVAL_ROOT/.venv/bin/python" -u evaluate.py "$out"
 ```
+
+An additional target panel freezes 24 MATH500 questions and two questions in each of the 27 BBH tasks outside the official public manifest. The panel is opened only if the selected candidate qualifies for full replication or both targets strictly improve in the disjoint replication. The feature weights and selection rule stay fixed. Run `fresh_panel.py "$out" prepare` before reading joint development outcomes and `fresh_panel.py "$out" audit` after replication, using the same evaluator environment.
