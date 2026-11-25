@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from unittest.mock import patch
 
-from routing_runtime import HERE, configure
+from routing_runtime import HERE, configure, metal_slot
 
 
 def build_models(root, rule):
@@ -120,4 +120,5 @@ if __name__ == '__main__':
         from fresh_panel import prepare
         prepare(root, rule)
     else:
-        evaluate(root, rule)
+        with metal_slot(root):
+            evaluate(root, rule)
