@@ -13,8 +13,8 @@ def prepare(root, rule):
     from delta_cli.public_eval.common import digest
     from delta_cli.public_eval.suite import manifest
     from delta_cli.public_eval.text import load_tasks, verify_tasks
-    from evaluate_round import native
     from fresh_panel import PREVIOUS, freeze, question_key
+    from evaluate_round import native
 
     official = manifest()
     broad = [native.read(root.parent / n) for n in ('leader-round2-v1/general/suite.json', 'ten-hour-confirmation-v1/suite.json')]
@@ -58,12 +58,13 @@ def prepare(root, rule):
         entry['count'] = sum(len(s['indices']) for s in entry['selection'].values())
         verify_tasks(tasks, entry['selection'])
     for group, entry in suite['code'].items():
-        previous = {i for h in broad for i in h['code'][group]['indices']}
+        previous_ids = {str(doc['task_id']) for h in histories if group in h['code'] for doc in h['code'][group]['docs']}
         docs = dict(zip(entry['indices'], entry['docs'], strict=True))
-        chosen = pick(group, set(docs) - previous, rule['code_per_group'])
+        available = {i for i, doc in docs.items() if str(doc['task_id']) not in previous_ids}
+        chosen = pick(group, available, rule['code_per_group'])
         entry.update(indices=chosen, docs=[docs[i] for i in chosen], count=len(chosen))
     for group, entry in suite['bfcl'].items():
-        previous = {i for h in broad for i in h['bfcl'][group]['ids']}
+        previous = {i for h in histories if group in h['bfcl'] for i in h['bfcl'][group]['ids']}
         docs = dict(zip(entry['ids'], entry['doc_sha256'], strict=True))
         chosen = pick(group, set(docs) - previous, rule['bfcl_per_category'])
         entry.update(ids=chosen, doc_sha256=[docs[i] for i in chosen], count=len(chosen))
@@ -73,7 +74,8 @@ def prepare(root, rule):
     assert len(ids) == 18
     for h in histories:
         old = native.expected_ids(h)
-        assert all(ids[g].isdisjoint(other) for g, other in old.items())
+        for g, other in old.items():
+            assert ids[g].isdisjoint(other), (h['id'], g, ids[g] & other)
     freeze(root / 'suite.json', suite)
     freeze(root / 'selection.json', dict(sha256=suite['sha256'], items={g: len(v) for g, v in ids.items()},
                                          salt=rule['salt'], excluded=sorted({h['sha256'] for h in histories})))
