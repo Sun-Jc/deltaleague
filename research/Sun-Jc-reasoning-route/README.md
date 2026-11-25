@@ -21,6 +21,8 @@ Each value below is the candidate's 18-task mean minus the parent's mean, in per
 
 On two additional reasoning panels totaling 80 MATH500 and 108 BBH items, the late-block edit tied its parent on MATH500 and gained nine correct BBH answers. The recurrent-content edit gained one on each task. Neither edit met the prespecified two-cohort reasoning criterion. On a third 18-task panel of 332 items, late-block scored 50.55 against 50.77 for its parent. The paired 90% interval for the difference was −2.26 to +1.90 points. These local results use sampled generation and have substantial uncertainty. [Routing](results/decision.json) · [Combined edit](union/results/decision.json) · [Two-cohort reasoning results](replication/results/decision.json) · [Late-block generalization](generalization/results/decision.json) · [Seed-3 edits](residual/results/decision.json)
 
+On a separate 332-item panel, recurrent-content scored 43.21 against the parent's 43.27. The paired 90% interval for the difference was −0.80 to +0.69. MATH500 was tied at 12/24 and BBH fell from 12/27 to 11/27. This ruled out the patch under its registered three-panel criterion. [Recurrent-content generalization](recurrent-generalization/results/decision.json)
+
 ## Reproduction
 
 With the project CLI, Torch and safetensors installed, run the following from this research directory. The builder checks every official file in each model directory, reconstructs the edit from those inputs and verifies the exact manifest and payload hashes against the registered build record.
