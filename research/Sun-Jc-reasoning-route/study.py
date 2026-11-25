@@ -39,6 +39,9 @@ def build_models(root, rule):
         from residual_edit import residual_tensor, seed_sources
         sources = seed_sources(root, rule)
         edit = residual_tensor
+    if any(spec['family'] == 'union' for spec in rule['arms'].values()):
+        from union_edit import graft_union
+        edit = graft_union
     for name, spec in rule['arms'].items():
         with patch.object(build, 'edit_tensor', edit):
             report = build_candidate(root, name, spec, parent, meta, sources, template)

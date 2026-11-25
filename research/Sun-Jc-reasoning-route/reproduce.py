@@ -11,6 +11,7 @@ from safetensors.torch import save_file
 import torch
 
 from residual_edit import residual_tensor
+from union_edit import matches
 
 
 def verified_path(models, version, content_hash):
@@ -48,7 +49,7 @@ def build(models, protocol, arm, output):
                     tensors[name] = result[0]
             elif name.startswith(prefix):
                 layer, module = name.removeprefix(prefix).split('.', 1)
-                if spec['first_layer'] <= int(layer) <= spec['last_layer'] and module in spec['modules']:
+                if any(matches(int(layer), module, piece) for piece in spec.get('pieces', [spec])):
                     tensors[name] = donor.get_tensor(name)
         modified = Path(temp) / 'model.safetensors'
         save_file(tensors, modified, metadata=parent.metadata())
