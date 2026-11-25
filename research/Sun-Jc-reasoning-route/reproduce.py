@@ -40,11 +40,14 @@ def build(models, protocol, arm, output):
         ancestor = None
         if 'ancestor' in rule:
             ancestor = open_model(verified_path(models, rule['ancestor'], rule['ancestor_hash']))
+        agreement = None
+        if 'agreement_model' in rule:
+            agreement = open_model(verified_path(models, rule['agreement_model'], rule['agreement_hash']))
         tensors = {name: parent.get_tensor(name) for name in parent.keys()}
         prefix = 'model.language_model.layers.'
         for name, old in tensors.items():
             if ancestor is not None:
-                result = residual_tensor(name, old, spec, (ancestor, donor))
+                result = residual_tensor(name, old, spec, (ancestor, donor), agreement=agreement)
                 if result is not None:
                     tensors[name] = result[0]
             elif name.startswith(prefix):

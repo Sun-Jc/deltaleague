@@ -53,7 +53,7 @@
     "evaluate_ablation.py": "cc844275e0285c1790d8a0f8a3069f993a4ae615f0b4444957f21c520aa44dd5",
     "fresh_panel.py": "20c87ed2dbf66e8a2d62c7637acee9099e13fdfdab56dc26e3107bdb4502d389"
   },
-  "ranking": "Rank the three arms by prior registered tiers: positive macro with both reasoning benchmarks improved; positive macro with neither regressing; positive macro; remaining. Within tiers prefer larger macro gain. Confirm the first two. On the blinded fresh set test the confirmed arms with positive development and confirmation macro in rank order. A candidate with gains on both new reasoning tasks qualifies. If both qualify, submit the first in the prespecified order.",
+  "ranking": "Rank the two arms on the development panel. Prefer a positive macro with both reasoning benchmarks improved, then positive macro with neither regressing, then positive macro, then remaining. Within tiers prefer larger macro gain. Confirm both on the separate 18-task panel. Test those with positive macro on both panels on the locked new reasoning items in the registered rank order. Nominate only an arm with net gains on both fresh tasks. Break a qualifying tie by the development ranking.",
   "ancestor": "eff1e1b7-18ef-4c77-83ef-25fdcc027e75",
   "ancestor_hash": "6ba2eed0971dcc9fbb9e20d8a44128580fcdc1d1d8c3b774470c8d6676006fc2",
   "activation": "Evaluate only if both the seed-residual study and the independent recurrent generalization study finish without a nominee.",

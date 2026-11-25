@@ -12,7 +12,7 @@ def seed_sources(root, rule):
     return ancestor, root.parent / 'models' / rule['donor'][:8]
 
 
-def residual_tensor(name, leader, spec, sources):
+def residual_tensor(name, leader, spec, sources, *, agreement=None):
     prefix = 'model.language_model.layers.'
     if not name.startswith(prefix) or leader.ndim != 2:
         return None
@@ -21,12 +21,23 @@ def residual_tensor(name, leader, spec, sources):
         return None
     if not (module.endswith('_proj.weight') or module.startswith('linear_attn.in_proj_') and module.endswith('.weight')):
         return None
+    if 'modules' in spec and module not in spec['modules']:
+        return None
     ancestor, donor = (file.get_tensor(name) for file in sources)
     assert leader.dtype == ancestor.dtype == donor.dtype and leader.shape == ancestor.shape == donor.shape
+    family = spec['family']
+    if family == 'consensus-floor':
+        reference = agreement.get_tensor(name)
+        assert reference.dtype == leader.dtype and reference.shape == leader.shape
+        lower = torch.minimum(reference, donor)
+        upper = torch.maximum(reference, donor)
+        move_up = (ancestor < lower) & (leader < lower)
+        move_down = (ancestor > upper) & (leader > upper)
+        changed = torch.where(move_up, lower, torch.where(move_down, upper, leader))
+        return changed, {'eligible': int((move_up | move_down).sum())}
     parent = leader.float()
     old = ancestor.float()
     seed_delta = donor.float() - old
-    family = spec['family']
     if family == 'missing-seed':
         eligible = (leader == ancestor) & (seed_delta != 0)
         changed = torch.where(eligible, donor, leader)

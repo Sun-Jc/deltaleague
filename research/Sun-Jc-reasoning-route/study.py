@@ -1,5 +1,7 @@
 """Build source-matched routing grafts and run paired public evaluations on Metal."""
 import argparse
+from contextlib import ExitStack
+from functools import partial
 import json
 from pathlib import Path
 from unittest.mock import patch
@@ -30,14 +32,20 @@ def build_models(root, rule):
     if any(spec['family'] == 'union' for spec in rule['arms'].values()):
         from union_edit import graft_union
         edit = graft_union
-    for name, spec in rule['arms'].items():
-        with patch.object(build, 'edit_tensor', edit):
-            report = build_candidate(root, name, spec, parent, meta, sources, template)
-        with safe_open(donor / 'model.safetensors', framework='pt') as src, safe_open(root / name / 'model/model.safetensors', framework='pt') as out:
+    with ExitStack() as files:
+        if 'agreement_model' in rule:
+            agreement = root.parent / 'models' / rule['agreement_model'][:8]
+            assert verified(agreement, rule['agreement_hash'])['id'] == rule['agreement_model']
+            handle = files.enter_context(safe_open(agreement / 'model.safetensors', framework='pt'))
+            edit = partial(edit, agreement=handle)
+        for name, spec in rule['arms'].items():
+            with patch.object(build, 'edit_tensor', edit):
+                report = build_candidate(root, name, spec, parent, meta, sources, template)
             if 'ancestor' not in rule:
-                assert all(torch.equal(src.get_tensor(k), out.get_tensor(k)) for k in report['by_tensor'])
-        reports[name] = report
-        print(name, report['changed_values'], report['patch_sha256'], flush=True)
+                with safe_open(donor / 'model.safetensors', framework='pt') as src, safe_open(root / name / 'model/model.safetensors', framework='pt') as out:
+                    assert all(torch.equal(src.get_tensor(k), out.get_tensor(k)) for k in report['by_tensor'])
+            reports[name] = report
+            print(name, report['changed_values'], report['patch_sha256'], flush=True)
     write(root / 'builds.json', reports)
 
 
