@@ -13,6 +13,8 @@ def seed_sources(root, rule):
 
 
 def residual_tensor(name, leader, spec, sources, *, agreement=None):
+    if spec['family'] == 'final-channel-transfer':
+        return final_channel_tensor(name, leader, spec, sources)
     prefix = 'model.language_model.layers.'
     if not name.startswith(prefix) or leader.ndim != 2:
         return None
@@ -50,3 +52,24 @@ def residual_tensor(name, leader, spec, sources, *, agreement=None):
     else:
         raise ValueError(f'Unsupported seed edit: {family}')
     return changed, {'eligible': int(eligible.sum())}
+
+
+def final_channel_tensor(name, leader, spec, sources):
+    ancestor, donor = sources
+    if name == 'model.language_model.norm.weight':
+        assert torch.equal(leader, ancestor.get_tensor(name))
+        return donor.get_tensor(name), {'eligible': leader.numel()}
+    prefix = f"model.language_model.layers.{spec['layer']}.mlp."
+    if not name.startswith(prefix):
+        return None
+    module = name.removeprefix(prefix)
+    if module not in ('gate_proj.weight', 'up_proj.weight', 'down_proj.weight'):
+        return None
+    channels = spec['channel_indices']
+    index = (slice(None), channels) if module == 'down_proj.weight' else (channels, slice(None))
+    source = donor.get_tensor(name)
+    original = ancestor.get_tensor(name)
+    assert int((source != original).sum()) == int((source[index] != original[index]).sum())
+    changed = leader.clone()
+    changed[index] = source[index]
+    return changed, {'eligible': changed[index].numel()}
