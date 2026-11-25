@@ -21,6 +21,7 @@ def configure(protocol):
 
 def build_models(root, rule):
     import torch
+    import build
     from build import build_candidate, verified, write
     from safetensors import safe_open
 
@@ -32,10 +33,18 @@ def build_models(root, rule):
     template = json.loads(prior_plan.read_text())
     assert template['generation']['seed'] == rule['development']['seed']
     reports = {}
+    sources = (parent, donor)
+    edit = build.edit_tensor
+    if 'ancestor' in rule:
+        from residual_edit import residual_tensor, seed_sources
+        sources = seed_sources(root, rule)
+        edit = residual_tensor
     for name, spec in rule['arms'].items():
-        report = build_candidate(root, name, spec, parent, meta, (parent, donor), template)
+        with patch.object(build, 'edit_tensor', edit):
+            report = build_candidate(root, name, spec, parent, meta, sources, template)
         with safe_open(donor / 'model.safetensors', framework='pt') as src, safe_open(root / name / 'model/model.safetensors', framework='pt') as out:
-            assert all(torch.equal(src.get_tensor(k), out.get_tensor(k)) for k in report['by_tensor'])
+            if 'ancestor' not in rule:
+                assert all(torch.equal(src.get_tensor(k), out.get_tensor(k)) for k in report['by_tensor'])
         reports[name] = report
         print(name, report['changed_values'], report['patch_sha256'], flush=True)
     write(root / 'builds.json', reports)
