@@ -22,6 +22,7 @@ def prepare(root, rule):
     histories = list(broad)
     selections = dict(PREVIOUS, **research['extra_exclusions'])
     selections['reasoning-route-residual-v1/fresh-suite.json'] = native.read(HERE / 'replication/protocol.json')['replication_sha256']
+    selections.update(rule.get('extra_exclusions', {}))
     for name, sha in selections.items():
         item = native.read(root.parent / name)
         assert item['sha256'] == sha == digest({k: v for k, v in item.items() if k != 'sha256'})
@@ -34,7 +35,7 @@ def prepare(root, rule):
         return sorted(values)
 
     suite = copy.deepcopy(official)
-    suite.update(id='late-block-third-general-panel', scope='local-independent-ranking-panel')
+    suite.update(id=rule.get('suite_id', 'late-block-third-general-panel'), scope='local-independent-ranking-panel')
     for group, entry in suite['text'].items():
         tasks = load_tasks(entry['task'], suite['dataset_revisions'])
         for task, spec in entry['selection'].items():
@@ -42,7 +43,7 @@ def prepare(root, rule):
             used = {i for s in old for i in s['indices']}
             fingerprints = {h for s in old for h in s['doc_sha256']}
             docs = tasks[task].eval_docs
-            if group in ('bbh', 'mmlu'):
+            if group in rule.get('outside_manifest', ('bbh', 'mmlu')):
                 available = set(range(len(docs))) - used - set(spec['indices'])
             else:
                 available = set(spec['indices']) - used
@@ -139,7 +140,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('action', choices=['prepare', 'evaluate'])
     parser.add_argument('root', type=Path)
+    parser.add_argument('--protocol', type=Path, default=HERE / 'generalization/protocol.json')
     args = parser.parse_args()
     configure(json.loads((HERE / 'protocol.json').read_text()))
-    protocol = json.loads((HERE / 'generalization/protocol.json').read_text())
+    protocol = json.loads(args.protocol.read_text())
     (prepare if args.action == 'prepare' else evaluate)(args.root.resolve(), protocol)
