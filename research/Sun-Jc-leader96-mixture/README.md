@@ -72,4 +72,20 @@ mkdir -p "$run_dir"
 
 The three-tensor ablation scored 46.55 versus 43.98 on development (+2.57, paired 90% interval +0.28 to +5.14) and 48.32 versus 47.92 on confirmation (+0.40, interval −0.22 to +1.21). The confirmation gain came from one MMLU-Pro answer. On 94 fresh questions it lost one previously correct MATH500 answer (16/40 versus 17/40) and two previously correct BBH answers (19/54 versus 21/54), with zero gains in either group. We retain the three-tensor patch for its broad-panel signal. Neither d0120ae6 edit met the registered joint reasoning and broad replication target. [Ablation decision](ablation/results/decision.json)
 
-The official leaderboard still ranked d0120ae6 first at the end of the experiment. No candidate received an official private evaluation. [Closing leaderboard](results/leaderboard-close.json)
+The official leaderboard still ranked d0120ae6 first at the end of the experiment. At that point all candidate results were local. [Closing leaderboard](results/leaderboard-close.json)
+
+## Official submission
+
+Sun-Jc submitted the three-layer full-attention patch on 25 November 2026 at 01:29 UTC. [Submission 4a2abfda](https://deltaleague.ai/submissions/4a2abfda-eb1e-458c-be5c-b744d5902576/) · [Research PR 108](https://github.com/ilblackdragon/deltaleague/pull/108)
+
+To reproduce just the submitted payload and manifest, install the project CLI and its weight-edit dependencies and run the following in this research directory. Choose a filesystem with room for four official model versions and a temporary full model. The script verifies every official file and both output SHA-256 hashes. Here `models` is the destination directory for the four downloads.
+
+```sh
+models=/path/to/models
+delta model pull 917d6b4f-fea3-432c-9264-e4f89e45890a --output "$models/917d6b4f"
+delta model pull a6eb9f13-47fb-4755-bd08-268a86307674 --output "$models/a6eb9f13"
+delta model pull 96b67023-ce48-4cfa-be8c-8db86694f154 --output "$models/96b67023"
+delta model pull d0120ae6-20e2-4cd8-a73e-136470311df5 --output "$models/d0120ae6"
+python reconstruct_ablation.py "$models" /path/to/new-submission
+delta validate /path/to/new-submission
+```
