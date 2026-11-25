@@ -78,6 +78,8 @@ The official leaderboard still ranked d0120ae6 first at the end of the experimen
 
 Sun-Jc submitted the three-layer full-attention patch on 25 November 2026 at 01:29 UTC. [Submission 4a2abfda](https://deltaleague.ai/submissions/4a2abfda-eb1e-458c-be5c-b744d5902576/) · [Research PR 108](https://github.com/ilblackdragon/deltaleague/pull/108)
 
+The organizer verified model `63fa172a-3e69-49cf-b667-65f2db8810b3` on 25 November at 09:02 UTC. Official public validation was 47.46 versus 48.50 for d0120ae6. The official private test score was 53.40 ± 1.58 versus 54.90, a difference of −1.50 and tied rank 11 at verification. Public MATH500 rose from 48.44 to 56.25, IFEval rose from 76.56 to 85.94 and MMLU-Pro rose from 34.29 to 40.00. BBH fell from 42.59 to 33.33 and HumanEval from 37.50 to 15.63. The platform reports shared-fleet cost attribution and does not provide per-submission GPU usage. [Verified scores](ablation/results/official-submission.json)
+
 To reproduce just the submitted payload and manifest, install the project CLI and its weight-edit dependencies and run the following in this research directory. Choose a filesystem with room for four official model versions and a temporary full model. The script verifies every official file and both output SHA-256 hashes. Here `models` is the destination directory for the four downloads.
 
 ```sh
