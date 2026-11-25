@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from unittest.mock import patch
 
-from study import HERE, configure
+from routing_runtime import HERE, configure
 
 def run(output, original_root, union_root):
     protocol = json.loads((HERE / 'replication/protocol.json').read_text())

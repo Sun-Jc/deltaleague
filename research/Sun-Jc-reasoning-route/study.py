@@ -1,22 +1,10 @@
 """Build source-matched routing grafts and run paired public evaluations on Metal."""
 import argparse
-import hashlib
 import json
-import os
 from pathlib import Path
-import sys
 from unittest.mock import patch
 
-HERE = Path(__file__).resolve().parent
-DEFAULT_HELPERS = Path('/Users/jc/.codex/worktrees/leader96-mixture/deltaleague/research/Sun-Jc-leader96-mixture')
-
-
-def configure(protocol):
-    helpers = Path(os.environ.get('DELTA_MIXTURE_STUDY', DEFAULT_HELPERS))
-    for name, digest in protocol['pinned_helpers'].items():
-        if hashlib.sha256((helpers / name).read_bytes()).hexdigest() != digest:
-            raise ValueError('Unexpected shared runner: ' + name)
-    sys.path.insert(0, str(helpers))
+from routing_runtime import HERE, configure
 
 
 def build_models(root, rule):
