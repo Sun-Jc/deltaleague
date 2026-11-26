@@ -23,6 +23,10 @@ On two additional reasoning panels totaling 80 MATH500 and 108 BBH items, the la
 
 On a separate 332-item panel, recurrent-content scored 43.21 against the parent's 43.27. The paired 90% interval for the difference was −0.80 to +0.69. MATH500 was tied at 12/24 and BBH fell from 12/27 to 11/27. This ruled out the patch under its registered three-panel criterion. [Recurrent-content generalization](recurrent-generalization/results/decision.json)
 
+The consensus edit raised all underrepresented decoder projection changes shared by the seed-1/2 and seed-3 donors to the nearer donor value in layers 0–22. It gained 1.97 and 0.28 points on the two 204-item panels. On 94 new questions it gained three BBH answers (18/54 versus 15/54) and lost one MATH500 answer (21/40 versus 22/40). The recurrent-only variant gained 1.88 points in development and lost 0.90 in confirmation. [Consensus study](consensus/results/decision.json)
+
+The final-channel transplant copied three final-layer MLP channels and the final RMSNorm from bde3d8e4, changing 10,236 values. Its development gain of 3.40 points reversed on the 332-item panel, where it scored 49.51 against 50.77. MATH500 stayed at 12/24 and BBH fell from 11/27 to 8/27. The separate 94-item holdout remained unused for this edit. [Final-channel study](final-channel/results/decision.json)
+
 ## Reproduction
 
 With the project CLI, Torch and safetensors installed, run the following from this research directory. The builder checks every official file in each model directory, reconstructs the edit from those inputs and verifies the exact manifest and payload hashes against the registered build record.
