@@ -36,9 +36,12 @@ def build_models(root, rule):
     if channel_graft:
         from channel_edit import graft_channels
         edit = graft_channels
+    blend_study = all(spec['family'] in ('leader-midpoint', 'three-source-ratio') for spec in rule['arms'].values())
+    if blend_study:
+        from mixture_edit import reweight_layer_tensor
+        edit = reweight_layer_tensor
     with ExitStack() as files:
         if 'third_source' in rule:
-            from mixture_edit import reweight_layer_tensor
             first, third = [root.parent / 'models' / rule[key][:8] for key in ('first_source', 'third_source')]
             for key, directory in [('first_source', first), ('third_source', third)]:
                 assert verified(directory, rule[key + '_hash'])['id'] == rule[key]
@@ -53,7 +56,7 @@ def build_models(root, rule):
         for name, spec in rule['arms'].items():
             with patch.object(build, 'edit_tensor', edit):
                 report = build_candidate(root, name, spec, parent, meta, sources, template)
-            if 'ancestor' not in rule and 'third_source' not in rule and not channel_graft:
+            if 'ancestor' not in rule and not (channel_graft or blend_study):
                 with safe_open(donor / 'model.safetensors', framework='pt') as src, safe_open(root / name / 'model/model.safetensors', framework='pt') as out:
                     assert all(torch.equal(src.get_tensor(k), out.get_tensor(k)) for k in report['by_tensor'])
             reports[name] = report

@@ -39,6 +39,7 @@ def build(models, protocol, arm, output):
             return stack.enter_context(safe_open(path, framework='pt'))
 
         parent, donor = open_model(parent_file), open_model(donor_file)
+        first, third = parent, None
         if 'third_source' in rule:
             first, third = [open_model(verified_path(models, rule[key], rule[key + '_hash']))
                             for key in ('first_source', 'third_source')]
@@ -51,7 +52,7 @@ def build(models, protocol, arm, output):
         tensors = {name: parent.get_tensor(name) for name in parent.keys()}
         prefix = 'model.language_model.layers.'
         for name, old in tensors.items():
-            if spec['family'] == 'three-source-ratio':
+            if spec['family'] in ('leader-midpoint', 'three-source-ratio'):
                 result = reweight_layer_tensor(name, old, spec, (first, donor), third=third)
                 if result is not None:
                     tensors[name] = result[0]
