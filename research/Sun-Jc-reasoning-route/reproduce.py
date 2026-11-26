@@ -12,6 +12,7 @@ import torch
 
 from residual_edit import residual_tensor
 from channel_edit import graft_channels
+from mixture_edit import reweight_layer_tensor
 from union_edit import matches
 
 
@@ -38,6 +39,9 @@ def build(models, protocol, arm, output):
             return stack.enter_context(safe_open(path, framework='pt'))
 
         parent, donor = open_model(parent_file), open_model(donor_file)
+        if 'third_source' in rule:
+            first, third = [open_model(verified_path(models, rule[key], rule[key + '_hash']))
+                            for key in ('first_source', 'third_source')]
         ancestor = None
         if 'ancestor' in rule:
             ancestor = open_model(verified_path(models, rule['ancestor'], rule['ancestor_hash']))
@@ -47,7 +51,11 @@ def build(models, protocol, arm, output):
         tensors = {name: parent.get_tensor(name) for name in parent.keys()}
         prefix = 'model.language_model.layers.'
         for name, old in tensors.items():
-            if spec['family'] == 'mlp-channel-graft':
+            if spec['family'] == 'three-source-ratio':
+                result = reweight_layer_tensor(name, old, spec, (first, donor), third=third)
+                if result is not None:
+                    tensors[name] = result[0]
+            elif spec['family'] == 'mlp-channel-graft':
                 result = graft_channels(name, old, spec, (parent, donor))
                 if result is not None:
                     tensors[name] = result[0]

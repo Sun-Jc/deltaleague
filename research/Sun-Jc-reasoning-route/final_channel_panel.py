@@ -18,6 +18,8 @@ def run(root, rule):
     dev = prior.suite_from(base / 'leader-round2-v1/general/suite.json', rule['development']['suite_sha256'])
     confirm = prior.suite_from(reference / 'suite.json', rule['confirmation']['suite_sha256'])
     fresh_receipt = native.read(root / 'fresh-selection.json')
+    if 'holdout' in rule:
+        assert fresh_receipt['suite_sha256'] == rule['holdout']['sha256']
     fresh = prior.suite_from(root / 'fresh-suite.json', fresh_receipt['suite_sha256'])
     dev_ids, confirm_ids, fresh_ids = map(native.expected_ids, (dev, confirm, fresh))
     assert len(dev_ids) == len(confirm_ids) == 18 and sum(map(len, confirm_ids.values())) == 332
