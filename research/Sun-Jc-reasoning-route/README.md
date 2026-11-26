@@ -8,6 +8,8 @@ The two 204-item panels use the same seeds and verified d0120ae6 parent response
 
 The MLP channel graft qualified under its original 204/332/94 protocol. Its 18-task mean rose from 43.98 to 45.16 in development and from 50.77 to 52.24 in confirmation. The separate held-out MATH500 score rose from 14/40 to 16/40 and BBH rose from 16/54 to 17/54. The two math changes and one BBH change were all gains in the paired comparison. An additional overall panel and the later mixture controls were conditional on this candidate failing. They did not contribute to its selection. Many earlier edits were screened on the broad development data. The fresh result rests on three changed answers under one generation seed. Official private performance requires organizer scoring. [Registered protocol](mlp-channels/protocol.json) · [Fresh reasoning results](mlp-channels/results/fresh-mlp-channel-graft.json) · [Selection decision](mlp-channels/results/decision.json)
 
+The organizer received the submission on 2026-11-26 at 14:51 UTC under the private1000-v6-thinking8k-20261111 evaluation. [Official submission](https://deltaleague.ai/submissions/1ad1e001-24f1-45e4-adda-3f683d310b89/) · [Research PR](https://github.com/ilblackdragon/deltaleague/pull/112)
+
 ## Local scores
 
 Each value below is the candidate's 18-task mean minus the parent's mean, in percentage points. Development and confirmation use disjoint questions. The parent scored 43.98 and 47.92 on the respective panels. A dash indicates that the candidate did not advance to that panel.
