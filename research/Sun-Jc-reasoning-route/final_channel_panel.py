@@ -1,4 +1,4 @@
-"""Compare a frozen three-channel transplant with the official parent."""
+"""Compare a frozen public-weight transplant with the official parent."""
 import argparse
 import json
 from pathlib import Path
@@ -80,8 +80,9 @@ def run(root, rule):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('output', type=Path)
+    parser.add_argument('--protocol', type=Path, default=HERE / 'final-channel/protocol.json')
     args = parser.parse_args()
-    rule = json.loads((HERE / 'final-channel/protocol.json').read_text())
+    rule = json.loads(args.protocol.read_text())
     configure(rule)
     root = args.output.resolve()
     with metal_slot(root):

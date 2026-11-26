@@ -32,6 +32,10 @@ def build_models(root, rule):
     if any(spec['family'] == 'union' for spec in rule['arms'].values()):
         from union_edit import graft_union
         edit = graft_union
+    channel_graft = all(spec['family'] == 'mlp-channel-graft' for spec in rule['arms'].values())
+    if channel_graft:
+        from channel_edit import graft_channels
+        edit = graft_channels
     with ExitStack() as files:
         if 'agreement_model' in rule:
             agreement = root.parent / 'models' / rule['agreement_model'][:8]
@@ -41,7 +45,7 @@ def build_models(root, rule):
         for name, spec in rule['arms'].items():
             with patch.object(build, 'edit_tensor', edit):
                 report = build_candidate(root, name, spec, parent, meta, sources, template)
-            if 'ancestor' not in rule:
+            if 'ancestor' not in rule and not channel_graft:
                 with safe_open(donor / 'model.safetensors', framework='pt') as src, safe_open(root / name / 'model/model.safetensors', framework='pt') as out:
                     assert all(torch.equal(src.get_tensor(k), out.get_tensor(k)) for k in report['by_tensor'])
             reports[name] = report

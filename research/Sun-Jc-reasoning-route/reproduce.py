@@ -11,6 +11,7 @@ from safetensors.torch import save_file
 import torch
 
 from residual_edit import residual_tensor
+from channel_edit import graft_channels
 from union_edit import matches
 
 
@@ -46,7 +47,11 @@ def build(models, protocol, arm, output):
         tensors = {name: parent.get_tensor(name) for name in parent.keys()}
         prefix = 'model.language_model.layers.'
         for name, old in tensors.items():
-            if ancestor is not None:
+            if spec['family'] == 'mlp-channel-graft':
+                result = graft_channels(name, old, spec, (parent, donor))
+                if result is not None:
+                    tensors[name] = result[0]
+            elif ancestor is not None:
                 result = residual_tensor(name, old, spec, (ancestor, donor), agreement=agreement)
                 if result is not None:
                     tensors[name] = result[0]
